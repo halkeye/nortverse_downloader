@@ -1,4 +1,4 @@
-# nortverse_downloader
+# nortverse-downloader
 
 Light little script to download https://nortverse.com into cbz files
 
@@ -9,7 +9,7 @@ I really love the comic, but don't like reading on the website. I am subscribing
 ## Usage
 
 ```
-go install github.com/halkeye/nortverse_downloader@latest
+go install github.com/halkeye/nortverse-downloader@latest
 ```
 
 ## License

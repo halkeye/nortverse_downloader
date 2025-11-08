@@ -1,4 +1,4 @@
-module github.com/halkeye/nortverse_downloader
+module github.com/halkeye/nortverse-downloader
 
 go 1.25.2
 

@@ -44,7 +44,7 @@ func downloadUrl(ctx context.Context, url string) (io.ReadCloser, error) {
 		return nil, fmt.Errorf("unable to create request: %w", err)
 	}
 
-	req.Header.Set("User-Agent", "nortverse_downloader/1.0.0")
+	req.Header.Set("User-Agent", "nortverse-downloader/1.0.0")
 	res, err := http.DefaultClient.Do(req)
 	if err != nil {
 		return nil, fmt.Errorf("unable to download url: %w", err)
