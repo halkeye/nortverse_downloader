@@ -135,7 +135,7 @@ func (d *downloader) comic(ctx context.Context, comicURL string) (string, error)
 	if err != nil {
 		return "", fmt.Errorf("unable to download url: %w", err)
 	}
-	defer body.Close()
+	defer Checks(body.Close)
 
 	// Load the HTML document
 	doc, err := goquery.NewDocumentFromReader(body)
@@ -216,10 +216,10 @@ func (d *downloader) comic(ctx context.Context, comicURL string) (string, error)
 	if err != nil {
 		return "", fmt.Errorf("unable create zip file: %w", err)
 	}
-	defer zipFile.Close()
+	defer Checks(zipFile.Close)
 
 	zipWriter := zip.NewWriter(zipFile)
-	defer zipWriter.Close()
+	defer Checks(zipWriter.Close)
 
 	for i, s := range doc.Find("div#comic img").EachIter() {
 		writer, err := zipWriter.Create(fmt.Sprintf("%04d.png", i+1))
@@ -231,7 +231,7 @@ func (d *downloader) comic(ctx context.Context, comicURL string) (string, error)
 		if err != nil {
 			return "", fmt.Errorf("downloading image: %w", err)
 		}
-		defer body.Close()
+		defer Checks(body.Close)
 
 		// Write the file contents to the zip archive.
 		_, err = io.Copy(writer, body)
@@ -247,7 +247,10 @@ func (d *downloader) comic(ctx context.Context, comicURL string) (string, error)
 			return "", fmt.Errorf("unable add file to zip: %w", err)
 		}
 
-		comicinfo.Write(ci, writer)
+		err = comicinfo.Write(ci, writer)
+		if err != nil {
+			return "", fmt.Errorf("unable write file: %w", err)
+		}
 	}
 
 	return nextUrl, nil
@@ -262,4 +265,12 @@ func init() {
 	downloadCmd.PersistentFlags().Bool("overwrite", false, "even download if already exists")
 	downloadCmd.PersistentFlags().String("output", "download", "download directory")
 	downloadCmd.PersistentFlags().String("flaresolverr", "", "flaresolverr url")
+}
+
+func Checks(fs ...func() error) {
+	for i := len(fs) - 1; i >= 0; i-- {
+		if err := fs[i](); err != nil {
+			slog.Error("Received error:", "err", err)
+		}
+	}
 }
